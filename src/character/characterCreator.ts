@@ -8,27 +8,56 @@ export class CharacterCreator {
     /**
      * Creates a new CharacterSheet from raw inputs.
      */
+    static createCharacter(
+        info: Info,
+        attributes: Attributes,
+        skills: Skills
+    ): APIResult<CharacterSheet> {
+
+        const validation = validateCharacter(info, attributes, skills);
+
+        if (!validation.valid) {
+            return { success: false, errors: validation.errors };
+        }
+
+        const created = CharacterCreator.create(info, attributes, skills);
+
+        if (!created.success) {
+            return { success: false, errors: created.errors };
+        }
+
+        return { success: true, data: created.data };
+    }
+
+    /**
+     * 🔧 Missing method — this actually creates the CharacterSheet
+     */
     static create(
         info: Info,
         attributes: Attributes,
         skills: Skills
     ): APIResult<CharacterSheet> {
 
-        const result = validateCharacter(info, attributes, skills);
+        try {
+            const stats = computeCharacterStats(attributes, info);
+            const data = computeCharacterData(attributes);
 
-        if (!result.valid) {
-            return { success: false, errors: result.errors };
+            const character: CharacterSheet = {
+                info,
+                attributes,
+                skills,
+                stats,
+                data
+            };
+
+            return { success: true, data: character };
+
+        } catch (err) {
+            return {
+                success: false,
+                errors: ["Failed to create character: " + (err as Error).message]
+            };
         }
-
-        const character: CharacterSheet = {
-            info,
-            attributes,
-            skills,
-            stats: computeCharacterStats(attributes, info),
-            data: computeCharacterData(attributes)
-        };
-
-        return { success: true, data: character };
     }
 
     /**

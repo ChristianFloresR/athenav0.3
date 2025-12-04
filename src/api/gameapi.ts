@@ -25,10 +25,10 @@ export class GameAPI {
         const created = CharacterCreator.create(info, attributes, skills);
 
         if (!created.success) {
-            return { success: false, errors: created.errors };
+            return { success: false, errors: (created as any).errors };
         }
 
-        return { success: true, data: created.character };
+        return { success: true, data: created.data };
     }
 
 
