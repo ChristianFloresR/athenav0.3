@@ -1,0 +1,52 @@
+{
+    "info": {
+        "id": "test001",
+        "name": "Anippé",
+        "species": "Catgoose",
+        "age": 23,
+        "height": 1.65,
+        "level": 5
+    },
+    "attributes": {
+        "agility": 5,
+        "wisdom": 2,
+        "strength": 3,
+        "mental": 4,
+        "vitality": 6
+    },
+    "skills": {
+        "athletics": 2,
+        "charisma": 3,
+        "culture": 1,
+        "investigation": 0,
+        "geography": 0,
+        "manipulation": 0,
+        "medicine": 1,
+        "presence": 4,
+        "perception": 0,
+        "sintonization": 0,
+        "stealth": 2,
+        "survival": 0
+    },
+    "stats": {
+        "maxcondition": 3,
+        "condition": 3,
+        "maxhp": 42,
+        "hp": 42,
+        "maxpsi": 12,
+        "psi": 12,
+        "maxstamina": 0,
+        "stamina": 0
+    },
+    "data": {
+        "def_physical": 12,
+        "def_mental": 12,
+        "base_dmgred": 3,
+        "reflexes": 7,
+        "willpower": 6,
+        "constitution": 9,
+        "mobility": 12,
+        "carrycap": 14,
+        "inspiration": 0
+    }
+}
