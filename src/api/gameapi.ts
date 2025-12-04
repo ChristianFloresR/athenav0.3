@@ -35,7 +35,7 @@ export class GameAPI {
     // ================================
     // 2. RECALCULATE CHARACTER
     // ================================
-    static recalculateCharacter(character: CharacterSheet): CharacterSheet {
+    static recalculateCharacter(character: CharacterSheet): APIResult<CharacterSheet> {
         return CharacterCreator.recalculate(character);
     }
 
