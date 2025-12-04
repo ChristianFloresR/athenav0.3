@@ -1,45 +1,68 @@
-import { Attributes, Info, Skills, CharacterSheet } from "./characterSheet"
-import { computeCharacterStats, computeCharacterData } from "./characterStats"
-import { validateInfo, validateAttributes, validateSkills } from "./validation"
+import { Attributes, Info, Skills, CharacterSheet } from "./characterSheet";
+import { computeCharacterStats, computeCharacterData } from "./characterStats";
+import { validateCharacter } from "./validation";
+import { APIResult } from "../data/saveLoad";
 
 export class CharacterCreator {
 
-    /** Creates a new CharacterSheet from raw inputs */
-    static create(info: Info, attributes: Attributes, skills: Skills): CharacterSheet {
-        // 🔎 Validate raw inputs BEFORE creation
-        validateInfo(info)
-        validateAttributes(attributes)
-        validateSkills(skills)
+    /**
+     * Creates a new CharacterSheet from raw inputs.
+     */
+    static create(
+        info: Info,
+        attributes: Attributes,
+        skills: Skills
+    ): APIResult<CharacterSheet> {
 
-        return {
+        const result = validateCharacter(info, attributes, skills);
+
+        if (!result.valid) {
+            return { success: false, errors: result.errors };
+        }
+
+        const character: CharacterSheet = {
             info,
             attributes,
-            skills, // ⚠ Player-defined skills remain EXACTLY as provided
+            skills,
             stats: computeCharacterStats(attributes, info),
             data: computeCharacterData(attributes)
-        }
+        };
+
+        return { success: true, data: character };
     }
 
     /**
-     * Recalculates stats & data if attributes or level change,
-     * while preserving player-chosen skills and current HP/conditions.
+     * Recalculates stats & data.
      */
-    static recalculate(character: CharacterSheet): CharacterSheet {
-        // 🔎 Validate only attributes + info; skills not recalculated
-        validateInfo(character.info)
-        validateAttributes(character.attributes)
+    static recalculate(character: CharacterSheet): APIResult<CharacterSheet> {
 
-        const updatedStats = computeCharacterStats(character.attributes, character.info)
-        const updatedData = computeCharacterData(character.attributes)
+        const result = validateCharacter(
+            character.info,
+            character.attributes,
+            character.skills
+        );
 
-        return {
+        if (!result.valid) {
+            return { success: false, errors: result.errors };
+        }
+
+        const updatedStats = computeCharacterStats(
+            character.attributes,
+            character.info
+        );
+
+        const updatedData = computeCharacterData(character.attributes);
+
+        const updatedCharacter: CharacterSheet = {
             ...character,
             stats: {
                 ...updatedStats,
-                hp: Math.min(character.stats.hp, updatedStats.maxhp),  // preserve HP if max shrinks
-                psi: Math.min(character.stats.psi, updatedStats.maxpsi) // preserve PSI if max shrinks
+                hp: Math.min(character.stats.hp, updatedStats.maxhp),
+                psi: Math.min(character.stats.psi, updatedStats.maxpsi)
             },
             data: updatedData
-        }
+        };
+
+        return { success: true, data: updatedCharacter };
     }
 }
