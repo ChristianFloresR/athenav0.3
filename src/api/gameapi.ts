@@ -1,7 +1,7 @@
 import { Info, Attributes, Skills, CharacterSheet } from "../character/characterSheet";
 import { CharacterCreator } from "../character/characterCreator";
 import { validateCharacter } from "../character/validation";
-import { SaveLoad } from "../data/saveLoad";
+import { SaveLoad, APIResult } from "../data/saveLoad";
 import * as fs from "fs";
 import * as path from "path";
 
@@ -14,17 +14,21 @@ export class GameAPI {
         info: Info,
         attributes: Attributes,
         skills: Skills
-    ): { ok: true, character: CharacterSheet } | { ok: false, errors: string[] } {
+    ): APIResult<CharacterSheet> {
 
-        // Validate input first
         const validation = validateCharacter(info, attributes, skills);
+
         if (!validation.valid) {
-            return { ok: false, errors: validation.errors };
+            return { success: false, errors: validation.errors };
         }
 
-        // Create final character sheet
-        const character = CharacterCreator.create(info, attributes, skills);
-        return { ok: true, character };
+        const created = CharacterCreator.create(info, attributes, skills);
+
+        if (!created.success) {
+            return { success: false, errors: created.errors };
+        }
+
+        return { success: true, data: created.character };
     }
 
 
@@ -39,26 +43,34 @@ export class GameAPI {
     // ================================
     // 3. SAVE CHARACTER
     // ================================
-    static saveCharacter(character: CharacterSheet): void {
+    static saveCharacter(character: CharacterSheet): APIResult<null> {
 
         const saveDir = path.join(process.cwd(), "saves");
 
-        // Make sure /saves exists
         if (!fs.existsSync(saveDir)) {
             fs.mkdirSync(saveDir);
         }
 
         const filename = path.join(saveDir, `${character.info.name}.json`);
-        SaveLoad.save(character, filename);
+
+        return SaveLoad.save(character, filename);
     }
 
 
     // ================================
     // 4. LOAD CHARACTER
     // ================================
-    static loadCharacter(name: string): CharacterSheet | null {
+    static loadCharacter(name: string): APIResult<CharacterSheet> {
+
         const filepath = path.join(process.cwd(), "saves", `${name}.json`);
-        return SaveLoad.load(filepath);
+
+        const loaded = SaveLoad.load(filepath);
+
+        if (!loaded.success) {
+            return { success: false, errors: loaded.errors };
+        }
+
+        return { success: true, data: loaded.data! };
     }
 
 
@@ -66,6 +78,7 @@ export class GameAPI {
     // 5. LIST CHARACTERS
     // ================================
     static listCharacters(): string[] {
+
         const saveDir = path.join(process.cwd(), "saves");
 
         if (!fs.existsSync(saveDir)) {
@@ -73,15 +86,7 @@ export class GameAPI {
         }
 
         return fs.readdirSync(saveDir)
-            .filter(file => file.endsWith(".json"))
-            .map(file => file.replace(".json", ""));
-    }
-
-
-    // ================================
-    // 6. VALIDATION ACCESS
-    // ================================
-    static validate(info: Info, attributes: Attributes, skills: Skills) {
-        return validateCharacter(info, attributes, skills);
+            .filter(f => f.endsWith(".json"))
+            .map(f => f.replace(".json", ""));
     }
 }

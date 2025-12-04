@@ -1,42 +1,71 @@
-import { SaveLoad } from "../data/saveLoad";
 import { CharacterCreator } from "../character/characterCreator";
+import { SaveLoad } from "../data/saveLoad";
+import { Info, Attributes, Skills } from "../character/characterSheet";
 
-// Create a test character
-const myCharacter = CharacterCreator.create(
-    {
-        id: "test001",
-        name: "Anippé",
-        species: "Catgoose",
-        age: 23,
-        height: 1.65,
-        level: 5
-    },
-    {
-        agility: 5,
-        wisdom: 2,
-        strength: 3,
-        mental: 4,
-        vitality: 6
-    },
-    {
-        athletics: 2,
-        charisma: 3,
-        culture: 1,
-        investigation: 0,
-        geography: 0,
-        manipulation: 0,
-        medicine: 1,
-        presence: 4,
-        perception: 0,
-        sintonization: 0,
-        stealth: 2,
-        survival: 0
-    }
-);
+// ----------------------------
+// Raw sample data for testing
+// ----------------------------
 
-// Save to a file
-SaveLoad.save(myCharacter, "Anippé.json");
+const info: Info = {
+    id: "test001",
+    name: "Anippé",
+    species: "Mongoose/Cat",
+    age: 23,
+    height: 1.68,
+    level: 3
+};
 
-// Load back from the file
-const loadedCharacter = SaveLoad.load("Anippé.json");
-console.log("Loaded:", loadedCharacter);
+const attributes: Attributes = {
+    agility: 5,
+    wisdom: 2,
+    strength: 3,
+    mental: 4,
+    vitality: 6
+};
+
+const skills: Skills = {
+    athletics: 2,
+    charisma: 3,
+    culture: 1,
+    investigation: 0,
+    geography: 0,
+    manipulation: 0,
+    medicine: 1,
+    presence: 4,
+    perception: 0,
+    sintonization: 0,
+    stealth: 2,
+    survival: 0
+};
+
+// ----------------------------
+// Create character
+// ----------------------------
+let character;
+
+try {
+    character = CharacterCreator.create(info, attributes, skills);
+    console.log("✔ Character created successfully:");
+    console.log(character);
+} catch (err: any) {
+    console.error("❌ Character creation failed:", err.message);
+    process.exit(1);
+}
+
+// ----------------------------
+// Save to file
+// ----------------------------
+SaveLoad.save(character, "anippe.json");
+
+// ----------------------------
+// Load and validate
+// ----------------------------
+const loaded = SaveLoad.load("anippe.json");
+
+if (!loaded.success) {
+    console.error("❌ Failed to load saved character:", loaded.errors);
+    process.exit(1);
+}
+
+console.log("✔ Loaded character:");
+console.log(loaded.data);
