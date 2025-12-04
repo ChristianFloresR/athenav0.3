@@ -22,7 +22,7 @@ export class CharacterCreator {
 
         const created = CharacterCreator.create(info, attributes, skills);
 
-        if (!created.success) {
+        if ("errors" in created) {
             return { success: false, errors: created.errors };
         }
 

@@ -24,8 +24,8 @@ export class GameAPI {
 
         const created = CharacterCreator.create(info, attributes, skills);
 
-        if (!created.success) {
-            return { success: false, errors: (created as any).errors };
+        if ("errors" in created) {
+            return { success: false, errors: created.errors };
         }
 
         return { success: true, data: created.data };
@@ -66,7 +66,7 @@ export class GameAPI {
 
         const loaded = SaveLoad.load(filepath);
 
-        if (!loaded.success) {
+        if ("errors" in loaded) {
             return { success: false, errors: loaded.errors };
         }
 
