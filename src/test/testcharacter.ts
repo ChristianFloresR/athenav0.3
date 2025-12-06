@@ -62,7 +62,7 @@ SaveLoad.save(character, "anippe.json");
 // ----------------------------
 const loaded = SaveLoad.load("anippe.json");
 
-if (!loaded.success) {
+if ("errors" in loaded) {
     console.error("❌ Failed to load saved character:", loaded.errors);
     process.exit(1);
 }
